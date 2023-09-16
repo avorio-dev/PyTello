@@ -1,0 +1,25 @@
+{
+  "kb_map": {
+    "move": {
+      "forward": "w",
+      "backward": "s",
+      "right_clock": "d",
+      "left_clock": "a",
+
+      "right_yaw": "RIGHT",
+      "left_yaw": "LEFT",
+      "takeoff": "UP",
+      "landing": "DOWN"
+    },
+    "func": {
+      "takeoff": "t",
+      "landing": "l",
+
+      "stream": "i",
+      "save_img": "p",
+      "recording_path": "r",
+      "follow_path": "f",
+      "return": "z"
+    }
+  }
+}
