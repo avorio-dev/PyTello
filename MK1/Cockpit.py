@@ -23,7 +23,7 @@ class Cockpit:
         self._recording_path = False
         self._recorded_path = []
 
-        with open("res/kb_map.json", "r") as file:
+        with open("../res/kb_map.json", "r") as file:
             json_content = json.load(file)
 
         # Get Keyboard mapping from json file
