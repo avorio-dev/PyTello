@@ -1,6 +1,0 @@
-[submodule "PyUtils"]
-	path = PyUtils
-	url = https://github.com/avorio-dev/PyUtils.git
-[submodule "DJITelloPy"]
-	path = DJITelloPy
-	url = https://github.com/damiafuentes/DJITelloPy.git
