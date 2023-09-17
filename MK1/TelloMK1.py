@@ -8,11 +8,11 @@ from typing import Any
 import cv2  # If not working, add the path manually to the interpreter
 
 # from djitellopy import tello
-from DJITelloPy.djitellopy import tello
+from submodules.DJITelloPy.djitellopy import tello
 from time import sleep
 from win32api import GetSystemMetrics
 
-from PyUtils.Logging.ZAGLogger import ZAGLogger
+from submodules.PyUtils.Logging.ZAGLogger import ZAGLogger
 
 
 ####################################################################################################################
