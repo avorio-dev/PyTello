@@ -16,18 +16,20 @@ class Cockpit:
     TELLO_SPEED = 0.05
 
     # ---> CONSTRUCTOR
-    def __init__(self, tello_mk1: TelloMK2):
-        self._tello_mk1 = tello_mk1
+    def __init__(self, tello: TelloMK2):
+        self._tello = tello
         self._key_pressed = None
         self._movement_list = []
+
         self._recording_path = False
         self._recorded_path = []
 
         with open("../res/kb_map.json", "r") as file:
             json_content = json.load(file)
 
-        # Get Keyboard mapping from json file
-        self.kb_map = json_content["kb_map"]
+            # Get Keyboard mapping from json file
+            self.kb_map = json_content["kb_map"]
+            file.close()
 
     # ---> FUNCTIONS
     def update_pressed(self, key_pressed: ScancodeWrapper):
@@ -110,39 +112,39 @@ class Cockpit:
 
         # --> Take-Off
         if self.if_key_pressed(func["takeoff"]):
-            self._tello_mk1.start_streaming()
-            self._tello_mk1.takeoff()
+            self._tello.start_streaming()
+            self._tello.takeoff()
 
         # --> Landing
         if self.if_key_pressed(func["landing"]):
-            self._tello_mk1.land()
-            self._tello_mk1.stop_streaming()
+            self._tello.land()
+            self._tello.stop_streaming()
             self._movement_list.clear()
             is_flying = False
 
         # --> Start/Stop Streaming
         if self.if_key_pressed(func["stream"]):
-            if not self._tello_mk1.stream_on:
-                self._tello_mk1.start_streaming()
+            if not self._tello.stream_on:
+                self._tello.start_streaming()
             else:
-                self._tello_mk1.stop_streaming()
+                self._tello.stop_streaming()
 
         # --> Capture Image and Save on Desktop
-        if self._tello_mk1.stream_on:
-            img = self._tello_mk1.show_img(0, 0)
+        if self._tello.stream_on:
+            img = self._tello.show_img(0, 0)
             if self.if_key_pressed(func["save_img"]):
-                self._tello_mk1.save_img(img)
+                self._tello.save_img(img)
 
         # ### In Flying functions ### #
-        if self._tello_mk1.is_flying:
+        if self._tello.is_flying:
             movement = self.get_movements()
 
             # --> Move Tello with keyboard
-            self._tello_mk1.send_rc_controlx(movement[0],
-                                             movement[1],
-                                             movement[2],
-                                             movement[3],
-                                             self.TELLO_SPEED)
+            self._tello.send_rc_controlx(movement[0],
+                                         movement[1],
+                                         movement[2],
+                                         movement[3],
+                                         self.TELLO_SPEED)
 
             # --> Start/Stop Recording Path
             if self.if_key_pressed(func["recording_path"]):
@@ -159,8 +161,8 @@ class Cockpit:
         return is_flying
 
     def emergency_landing(self):
-        self._tello_mk1.land()
-        self._tello_mk1.stop_streaming()
+        self._tello.land()
+        self._tello.stop_streaming()
         self._movement_list.clear()
 
     def get_movement_list(self):
@@ -191,11 +193,11 @@ class Cockpit:
             self._disable_recording_path()
             for move in path:
                 self._movement_list.append(move)
-                self._tello_mk1.send_rc_controlx(move[0],
-                                                 move[1],
-                                                 move[2],
-                                                 move[3],
-                                                 self.TELLO_SPEED)
+                self._tello.send_rc_controlx(move[0],
+                                             move[1],
+                                             move[2],
+                                             move[3],
+                                             self.TELLO_SPEED)
             # TODO implement emergency stop
             # TODO implement log
             self._recorded_path.clear()
@@ -211,9 +213,9 @@ class Cockpit:
             # TODO implement reversed path to follow
 
             for move in path:
-                self._tello_mk1.send_rc_controlx(move[0],
-                                                 move[1],
-                                                 move[2],
-                                                 move[3],
-                                                 self.TELLO_SPEED)
+                self._tello.send_rc_controlx(move[0],
+                                             move[1],
+                                             move[2],
+                                             move[3],
+                                             self.TELLO_SPEED)
             self._movement_list.clear()

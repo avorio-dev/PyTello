@@ -29,13 +29,14 @@ class TelloMK2(tello.Tello):
 
     # ---> CONSTRUCTOR
     def __init__(self):
-
         # Logger init
         self._logx = ZAGLogger(self.LOG_NAME, write_file=True)
 
         # Create a Tello instance and connect it to the drone
         self._logx.print_log(logging.INFO, "Initialization...")
         super().__init__()
+
+    def initialize(self):
 
         try:
             self._logx.print_log(logging.INFO, "Connecting to Tello...")
