@@ -1,5 +1,6 @@
 ####################################################################################################################
 # IMPORTS
+import os
 from datetime import datetime
 
 import pygame
@@ -41,6 +42,7 @@ class GUI:
     def __init__(self, frame_border):
         # Initialize pygame (pygame must be initialized before tkinter)
         pygame.init()
+        self._clock = pygame.time.Clock()  # Create a Clock object for controlling the update rate
 
         # Set border for all frames for easy debug
         self._show_frame_border = frame_border
@@ -138,7 +140,45 @@ class GUI:
         self._update_log(frame_log, log_text)
 
     def _init_frame_map(self, frame_map):
-        pass
+        text = ttk.Label(frame_map, text="MAP Route", anchor=tk.CENTER)
+        text.pack()
+
+        embedded_frame = ttk.Frame(frame_map, width=self.window_width / 2, height=self.window_height)
+        embedded_frame.pack()
+
+        os.environ['SDL_WINDOWID'] = str(embedded_frame.winfo_id())
+        os.environ['SDL_VIDEODRIVER'] = 'windib'
+
+        screen = pygame.display.set_mode((embedded_frame.winfo_width(), embedded_frame.winfo_height()))
+        self._update_pygame_frame_map(screen)
+
+    def _update_pygame_frame_map(self, py_surface):
+        GRID_COLOR = (255, 255, 255)
+        GRID_LINE_WIDTH = 1
+        GRID_SPACING = 40
+
+        py_surface.fill((0, 0, 255))
+
+        py_width, py_height = py_surface.get_width(), py_surface.get_height()
+
+        py_surface.fill((0, 0, 255))
+
+        pygame.draw.rect(py_surface, GRID_COLOR,
+                         (GRID_SPACING, GRID_SPACING, py_width - 2 * GRID_SPACING, py_height - 2 * GRID_SPACING), 2)
+
+        # Disegna la griglia orizzontale
+        for y in range(GRID_SPACING, py_height - GRID_SPACING, GRID_SPACING):
+            pygame.draw.line(py_surface, GRID_COLOR, (GRID_SPACING, y), (py_width - GRID_SPACING, y), GRID_LINE_WIDTH)
+
+        # Disegna la griglia verticale
+        for x in range(GRID_SPACING, py_width - GRID_SPACING, GRID_SPACING):
+            pygame.draw.line(py_surface, GRID_COLOR, (x, GRID_SPACING), (x, py_height - GRID_SPACING), GRID_LINE_WIDTH)
+
+        pygame.draw.circle(py_surface, (255, 0, 0), (20, 10), 30)
+        pygame.display.update()
+
+        self._clock.tick(60)  # Set the update rate limit to 60 FPS
+        self._root.after(1, lambda: self._update_pygame_frame_map(py_surface))
 
     def _create_tello_instance(self):
         self._tello = TelloMK2()
@@ -157,7 +197,6 @@ class GUI:
         self._styler.apply_theme_recurs(self._root, self._current_theme)
 
     def _update_log(self, log_frame, log_text):
-
         if self._tello is not None:
             current_indx = len(self._log_entries)
             self._log_entries.clear()
