@@ -11,6 +11,7 @@ from win32api import GetSystemMetrics
 from tkinter import ttk, messagebox, scrolledtext
 
 from MK2.TelloMK2 import TelloMK2
+from submodules.PyUtils.Logging import ZAGLogger
 
 
 ####################################################################################################################
@@ -26,6 +27,15 @@ class GUI:
     # ---> CONSTANTS
     DARK_THEME = "dark"
     DEFAULT_THEME = "default"
+
+    # Mapping of colors for log text
+    LOG_COLORS = {
+        "DEBUG": "cyan",
+        "INFO": "green",
+        "WARNING": "yellow",
+        "ERROR": "red",
+        "CRITICAL": "magenta",
+    }
 
     # ---> CONSTRUCTOR
     def __init__(self, frame_border):
@@ -45,6 +55,10 @@ class GUI:
         self._styler.apply_theme_recurs(self._root, self.current_theme)
 
     # ---> FUNCTIONS
+    def run_mainloop(self):
+        self._root.after(1500, self._create_tello_instance)
+        self._root.mainloop()
+
     def _init_root(self):
         self._root = tk.Tk()
         self._root.title("Astro-Tello")
@@ -85,18 +99,8 @@ class GUI:
 
         self._set_border(frame_toolbar)
         self._set_border(frame_streaming)
-        self._set_border(frame_map)
         self._set_border(frame_log)
-
-    def _set_border(self, frame):
-        if self._show_frame_border:
-            frame.configure(borderwidth=2, relief="groove")
-
-    def _switch_theme(self, *args):
-        # Selected by String Var of menubutton
-        self._current_theme = self._selected_theme.get()
-
-        self._styler.apply_theme_recurs(self._root, self._current_theme)
+        self._set_border(frame_map)
 
     def _init_frame_toolbar(self, frame_toolbar):
         # Welcome Label
@@ -124,6 +128,34 @@ class GUI:
     def _init_frame_streaming(self, frame_streaming):
         pass
 
+    def _init_frame_log(self, frame_log):
+        log_text = scrolledtext.ScrolledText(frame_log, state=tk.DISABLED, wrap=tk.WORD, width=150)
+        log_text.pack(fill="both", expand=True)
+
+        for tag, color_code in self.LOG_COLORS.items():
+            log_text.tag_configure(tag, foreground=color_code)
+
+        self._update_log(frame_log, log_text)
+
+    def _init_frame_map(self, frame_map):
+        pass
+
+    def _create_tello_instance(self):
+        self._tello = TelloMK2()
+        self._root.after(100, self._init_tello_instance)
+
+    def _init_tello_instance(self):
+        self._tello.initialize()
+
+    def _set_border(self, frame):
+        if self._show_frame_border:
+            frame.configure(borderwidth=2, relief="groove")
+
+    def _switch_theme(self, *args):
+        # Selected by String Var of menubutton
+        self._current_theme = self._selected_theme.get()
+        self._styler.apply_theme_recurs(self._root, self._current_theme)
+
     def _update_log(self, log_frame, log_text):
 
         if self._tello is not None:
@@ -133,32 +165,17 @@ class GUI:
             log_text.config(state=tk.NORMAL)
 
             for log_indx in range(current_indx, len(self._log_entries)):
-                log_text.insert(tk.END, self._log_entries[log_indx] + "\n")
+                for tag, color_code in self.LOG_COLORS.items():
+                    if tag in self._log_entries[log_indx]:
+                        log_text.insert(tk.END, self._log_entries[log_indx] + "\n", tag)
+                        break
+                else:
+                    log_text.insert(tk.END, self._log_entries[log_indx] + "\n")
 
             log_text.see(tk.END)  # Scroll to the end
             log_text.config(state=tk.DISABLED)
 
         log_frame.after(10, lambda: self._update_log(log_frame, log_text))
-
-    def _init_frame_log(self, frame_log):
-        log_text = scrolledtext.ScrolledText(frame_log, state=tk.DISABLED, wrap=tk.WORD, width=150)
-        log_text.pack(fill="both", expand=True)
-
-        self._update_log(frame_log, log_text)
-
-    def _init_frame_map(self, frame_map):
-        pass
-
-    def _init_tello_instance(self):
-        self._tello.initialize()
-
-    def _create_tello_instance(self):
-        self._tello = TelloMK2()
-        self._root.after(100, self._init_tello_instance)
-
-    def run_mainloop(self):
-        self._root.after(1500, self._create_tello_instance)
-        self._root.mainloop()
 
 
 if __name__ == "__main__":
