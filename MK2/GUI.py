@@ -12,6 +12,7 @@ from win32api import GetSystemMetrics
 from tkinter import ttk, messagebox, scrolledtext
 
 from MK2.TelloMK2 import TelloMK2
+from MK2.Cockpit import Cockpit
 from submodules.PyUtils.Logging import ZAGLogger
 
 
@@ -24,6 +25,7 @@ class GUI:
     window_height = int(GetSystemMetrics(1))
     _log_entries = []
     _tello = None
+    _cockpit = None
 
     # ---> CONSTANTS
     DARK_THEME = "dark"
@@ -163,6 +165,7 @@ class GUI:
 
         py_surface.fill((0, 0, 255))
 
+
         pygame.draw.rect(py_surface, GRID_COLOR,
                          (GRID_SPACING, GRID_SPACING, py_width - 2 * GRID_SPACING, py_height - 2 * GRID_SPACING), 2)
 
@@ -186,6 +189,7 @@ class GUI:
 
     def _init_tello_instance(self):
         self._tello.initialize()
+        self._cockpit = Cockpit(self._tello)
 
     def _set_border(self, frame):
         if self._show_frame_border:
