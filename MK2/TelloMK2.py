@@ -8,7 +8,7 @@ import cv2  # If not working, add the path opencv2-python manually to the interp
 from typing import Any
 from win32api import GetSystemMetrics
 
-from submodules.DJITelloPy.djitellopy import tello
+from djitellopy import tello
 from submodules.PyUtils.Logging.ZAGLogger import ZAGLogger
 
 
